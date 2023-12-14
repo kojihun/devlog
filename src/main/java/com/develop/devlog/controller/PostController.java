@@ -1,5 +1,6 @@
 package com.develop.devlog.controller;
 
+import com.develop.devlog.domain.Post;
 import com.develop.devlog.request.PostCreate;
 import com.develop.devlog.service.PostService;
 import jakarta.validation.Valid;
@@ -17,8 +18,7 @@ public class PostController {
     private final PostService postService;
 
     @PostMapping("/posts")
-    public Map<String, String> post(@RequestBody @Valid PostCreate request) {
+    public void post(@RequestBody @Valid PostCreate request) {
         postService.write(request);
-        return Map.of();
     }
 }

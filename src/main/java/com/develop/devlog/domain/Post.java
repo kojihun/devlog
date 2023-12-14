@@ -3,6 +3,7 @@ package com.develop.devlog.domain;
 import com.develop.devlog.request.PostCreate;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -20,12 +21,9 @@ public class Post {
     @Lob
     private String content;
 
-    protected Post(String title, String content) {
+    @Builder
+    public Post(String title, String content) {
         this.title = title;
         this.content = content;
-    }
-
-    public static Post of(PostCreate postCreate) {
-        return new Post(postCreate.getTitle(), postCreate.getContent());
     }
 }
