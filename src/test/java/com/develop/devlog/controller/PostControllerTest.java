@@ -4,6 +4,8 @@ import com.develop.devlog.domain.Post;
 import com.develop.devlog.repository.PostRepository;
 import com.develop.devlog.request.PostCreate;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import net.bytebuddy.matcher.ElementMatchers;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -13,8 +15,10 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.result.JsonPathResultMatchers;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
+import static net.bytebuddy.matcher.ElementMatchers.is;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -109,6 +113,28 @@ class PostControllerTest {
                 .andExpect(jsonPath("$.id").value(post.getId()))
                 .andExpect(jsonPath("$.title").value("1234567890"))
                 .andExpect(jsonPath("$.content").value("내용입니다."))
+                .andDo(MockMvcResultHandlers.print());
+    }
+
+    @Test
+    @DisplayName("글 여러개 조회")
+    void test5() throws Exception {
+        Post post1 = Post.builder()
+                .title("12345678901011")
+                .content("내용입니다.")
+                .build();
+        postRepository.save(post1);
+
+        Post post2 = Post.builder()
+                .title("12345678901011")
+                .content("내용입니다.")
+                .build();
+        postRepository.save(post2);
+
+        mockMvc.perform(get("/posts")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()", Matchers.is(2)))
                 .andDo(MockMvcResultHandlers.print());
     }
 }
