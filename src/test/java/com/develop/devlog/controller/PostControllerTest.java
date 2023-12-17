@@ -18,6 +18,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.JsonPathResultMatchers;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
+import java.util.List;
+import java.util.stream.IntStream;
+
 import static net.bytebuddy.matcher.ElementMatchers.is;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -119,22 +122,19 @@ class PostControllerTest {
     @Test
     @DisplayName("글 여러개 조회")
     void test5() throws Exception {
-        Post post1 = Post.builder()
-                .title("12345678901011")
-                .content("내용입니다.")
-                .build();
-        postRepository.save(post1);
+        List<Post> requestPosts = IntStream.range(0, 30)
+                .mapToObj(i -> Post.builder()
+                        .title("제목 - " + i)
+                        .content("내용 - " + i)
+                        .build()).toList();
+        postRepository.saveAll(requestPosts);
 
-        Post post2 = Post.builder()
-                .title("12345678901011")
-                .content("내용입니다.")
-                .build();
-        postRepository.save(post2);
-
-        mockMvc.perform(get("/posts")
+        mockMvc.perform(get("/posts?page=1&sort=id,desc")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()", Matchers.is(2)))
+                .andExpect(jsonPath("$.length()", Matchers.is(5)))
+                .andExpect(jsonPath("$[0].title").value("제목 - 29"))
+                .andExpect(jsonPath("$[0].content").value("내용 - 29"))
                 .andDo(MockMvcResultHandlers.print());
     }
 }
