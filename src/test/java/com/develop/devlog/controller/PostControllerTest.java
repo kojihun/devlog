@@ -98,7 +98,7 @@ class PostControllerTest {
     @DisplayName("글 1개 조회")
     void test4() throws Exception {
         Post post = Post.builder()
-                .title("제목입니다.")
+                .title("12345678901011")
                 .content("내용입니다.")
                 .build();
         postRepository.save(post);
@@ -107,7 +107,7 @@ class PostControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(post.getId()))
-                .andExpect(jsonPath("$.title").value("제목입니다."))
+                .andExpect(jsonPath("$.title").value("1234567890"))
                 .andExpect(jsonPath("$.content").value("내용입니다."))
                 .andDo(MockMvcResultHandlers.print());
     }

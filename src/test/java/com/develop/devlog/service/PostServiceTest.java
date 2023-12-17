@@ -3,6 +3,7 @@ package com.develop.devlog.service;
 import com.develop.devlog.domain.Post;
 import com.develop.devlog.repository.PostRepository;
 import com.develop.devlog.request.PostCreate;
+import com.develop.devlog.response.PostResponse;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -48,8 +49,8 @@ class PostServiceTest {
                 .build();
         postRepository.save(requestPost);
 
-        Post post = postService.get(requestPost.getId());
+        PostResponse postResponse = postService.get(requestPost.getId());
 
-        Assertions.assertNotNull(post);
+        Assertions.assertNotNull(postResponse);
     }
 }
