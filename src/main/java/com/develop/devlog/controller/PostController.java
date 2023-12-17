@@ -21,4 +21,10 @@ public class PostController {
     public void post(@RequestBody @Valid PostCreate request) {
         postService.write(request);
     }
+
+    @GetMapping("/posts/{postId}")
+    public Post get(@PathVariable(name = "postId") Long id) {
+        Post post = postService.get(id);
+        return post;
+    }
 }
