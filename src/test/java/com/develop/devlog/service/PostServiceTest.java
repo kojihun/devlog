@@ -3,6 +3,7 @@ package com.develop.devlog.service;
 import com.develop.devlog.domain.Post;
 import com.develop.devlog.repository.PostRepository;
 import com.develop.devlog.request.PostCreate;
+import com.develop.devlog.request.PostSearch;
 import com.develop.devlog.response.PostResponse;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -71,9 +72,12 @@ class PostServiceTest {
                         .build()).toList();
         postRepository.saveAll(requestPosts);
 
-        Pageable pageable = PageRequest.of(0, 5, Sort.by(Sort.Direction.DESC, "id"));
+        PostSearch postSearch = PostSearch.builder()
+                .page(1)
+                .size(10)
+                .build();
 
-        List<PostResponse> posts = postService.getList(pageable);
+        List<PostResponse> posts = postService.getList(postSearch);
 
         Assertions.assertEquals(5L, posts.size());
         Assertions.assertEquals("제목 - 29", posts.get(0).getTitle());
