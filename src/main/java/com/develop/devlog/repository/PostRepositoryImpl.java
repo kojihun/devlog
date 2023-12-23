@@ -1,7 +1,9 @@
 package com.develop.devlog.repository;
 
 import com.develop.devlog.domain.Post;
+import com.develop.devlog.domain.QPost;
 import com.develop.devlog.request.PostSearch;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
