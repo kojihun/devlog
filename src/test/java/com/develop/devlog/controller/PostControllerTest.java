@@ -176,4 +176,44 @@ class PostControllerTest {
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
     }
+
+    @Test
+    @DisplayName("존재하지 않는 게시글 조회")
+    void test9() throws Exception {
+        mockMvc.perform(delete("/posts/{postId}", 1L)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andDo(MockMvcResultHandlers.print());
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 게시글 수정")
+    void test10() throws Exception {
+        PostEdit postEdit = PostEdit.builder()
+                .title("제목")
+                .content("수정된 내용")
+                .build();
+
+        mockMvc.perform(patch("/posts/{postId}", 1L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(postEdit)))
+                .andExpect(status().isNotFound())
+                .andDo(MockMvcResultHandlers.print());
+    }
+
+    @Test
+    @DisplayName("게시글 작성시 제목에 바보는 포함될 수 없다.")
+    void test11() throws Exception {
+        PostCreate request = PostCreate.builder()
+                .title("제목입니다. 바보")
+                .content("내용입니다.")
+                .build();
+        String json = objectMapper.writeValueAsString(request);
+
+        mockMvc.perform(post("/posts")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isBadRequest())
+                .andDo(MockMvcResultHandlers.print());
+    }
 }

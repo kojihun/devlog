@@ -1,6 +1,7 @@
 package com.develop.devlog.controller;
 
 import com.develop.devlog.domain.Post;
+import com.develop.devlog.exception.InvalidRequest;
 import com.develop.devlog.request.PostCreate;
 import com.develop.devlog.request.PostEdit;
 import com.develop.devlog.request.PostSearch;
@@ -26,6 +27,7 @@ public class PostController {
 
     @PostMapping("/posts")
     public void post(@RequestBody @Valid PostCreate request) {
+        request.validate();
         postService.write(request);
     }
 

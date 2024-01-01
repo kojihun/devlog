@@ -1,8 +1,12 @@
 package com.develop.devlog.controller;
 
+import com.develop.devlog.exception.DevlogException;
+import com.develop.devlog.exception.InvalidRequest;
+import com.develop.devlog.exception.PostNotFound;
 import com.develop.devlog.response.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -28,5 +32,21 @@ public class ExceptionController {
         }
 
         return errorResponse;
+    }
+
+    @ResponseBody
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(DevlogException.class)
+    public ResponseEntity<ErrorResponse> devlogException(DevlogException e) {
+        int statusCode = e.statusCode();
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .code(String.valueOf(statusCode))
+                .message(e.getMessage())
+                .validation(e.getValidation())
+                .build();
+
+        return ResponseEntity.status(statusCode)
+                .body(errorResponse);
     }
 }
