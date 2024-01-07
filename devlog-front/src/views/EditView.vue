@@ -1,8 +1,15 @@
 <template>
-  <h2>{{ post.title }}</h2>
-  <div>{{ post.content }}</div>
+  <div>
+    <el-input v-model="post.title" placeholder="제목을 입력해주세요"></el-input>
+  </div>
 
-  <el-button type="warning" @click="moveToEdit()">수정</el-button>
+  <div class="mt-2">
+    <el-input v-model="post.content" type="textarea" rows="15"></el-input>
+  </div>
+
+  <div class="mt-2">
+    <el-button type="warning" @click="edit()">글 수정완료</el-button>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -23,8 +30,10 @@ const post = ref({
   content: ""
 });
 
-const moveToEdit = () => {
-  router.push({name: "edit", params: {postId: props.postId}});
+const edit = () => {
+  axios.patch(`/api/posts/${props.postId}`, post.value).then(() => {
+    router.replace({name: "home"});
+  });
 }
 
 onMounted(() => {
