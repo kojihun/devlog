@@ -1,7 +1,9 @@
 <template>
   <ul>
     <li v-for="post in posts" :key="post.id">
-      <div>{{post.title}}</div>
+      <div>
+        <router-link :to="{name: 'read', params: {postId: post.id}}">{{post.title}}</router-link>
+      </div>
       <div>{{post.content}}</div>
     </li>
   </ul>
@@ -10,6 +12,7 @@
 <script setup lang="ts">
 import axios from "axios";
 import {ref} from "vue";
+import {useRouter} from "vue-router";
 
 const posts = ref([]);
 
