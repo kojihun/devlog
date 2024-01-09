@@ -1,7 +1,5 @@
 package com.develop.devlog.controller;
 
-import com.develop.devlog.domain.Post;
-import com.develop.devlog.exception.InvalidRequest;
 import com.develop.devlog.request.PostCreate;
 import com.develop.devlog.request.PostEdit;
 import com.develop.devlog.request.PostSearch;
@@ -10,13 +8,9 @@ import com.develop.devlog.service.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -26,9 +20,11 @@ public class PostController {
     private final PostService postService;
 
     @PostMapping("/posts")
-    public void post(@RequestBody @Valid PostCreate request) {
-        request.validate();
-        postService.write(request);
+    public void post(@RequestBody @Valid PostCreate request, @RequestHeader String authorization) {
+        if(authorization.equals("devlog")) {
+            request.validate();
+            postService.write(request);
+        }
     }
 
     @GetMapping("/posts/{postId}")
@@ -42,12 +38,16 @@ public class PostController {
     }
 
     @PatchMapping("/posts/{postId}")
-    public void edit(@PathVariable Long postId, @RequestBody PostEdit postEdit) {
-        postService.edit(postId, postEdit);
+    public void edit(@PathVariable Long postId, @RequestBody PostEdit postEdit, @RequestHeader String authorization) {
+        if (authorization.equals("devlog")) {
+            postService.edit(postId, postEdit);
+        }
     }
 
     @DeleteMapping("/posts/{postId}")
-    public void delete(@PathVariable Long postId) {
-        postService.delete(postId);
+    public void delete(@PathVariable Long postId, @RequestHeader String authorization) {
+        if (authorization.equals("devlog")) {
+            postService.delete(postId);
+        }
     }
 }
