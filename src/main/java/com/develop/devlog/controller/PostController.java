@@ -1,5 +1,6 @@
 package com.develop.devlog.controller;
 
+import com.develop.devlog.config.data.UserSession;
 import com.develop.devlog.request.PostCreate;
 import com.develop.devlog.request.PostEdit;
 import com.develop.devlog.request.PostSearch;
@@ -19,14 +20,10 @@ public class PostController {
 
     private final PostService postService;
 
-    @GetMapping("/test")
-    public String test() {
-        return "Hello";
-    }
-
     @GetMapping("/foo")
-    public String foo() {
-        return "foo";
+    public String foo(UserSession userSession) {
+        log.info(userSession.name);
+        return userSession.name;
     }
 
     @PostMapping("/posts")
