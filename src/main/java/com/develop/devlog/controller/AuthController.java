@@ -5,6 +5,8 @@ import com.develop.devlog.exception.InvalidRequest;
 import com.develop.devlog.exception.InvalidSigninInformation;
 import com.develop.devlog.repository.UserRepository;
 import com.develop.devlog.request.Login;
+import com.develop.devlog.response.SessionResponse;
+import com.develop.devlog.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,15 +20,11 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final UserRepository userRepository;
+    private final AuthService authService;
 
     @PostMapping("/auth/login")
-    public User login(@RequestBody Login login) {
-        log.info(">>> login={}", login);
-
-        User user = userRepository.findByEmailAndPassword(login.getEmail(), login.getPassword())
-                .orElseThrow(() -> new InvalidSigninInformation());
-
-        return user;
+    public SessionResponse login(@RequestBody Login login) {
+        String accessToken = authService.signin(login);
+        return new SessionResponse(accessToken);
     }
 }
