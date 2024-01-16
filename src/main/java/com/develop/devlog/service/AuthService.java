@@ -1,15 +1,14 @@
 package com.develop.devlog.service;
 
-import com.develop.devlog.domain.Session;
+import com.develop.devlog.crypto.PasswordEncoder;
+import com.develop.devlog.crypto.ScryptPasswordEncoder;
 import com.develop.devlog.domain.User;
 import com.develop.devlog.exception.AlreadyExistsEmailException;
-import com.develop.devlog.exception.InvalidRequest;
 import com.develop.devlog.exception.InvalidSigninInformation;
 import com.develop.devlog.repository.UserRepository;
 import com.develop.devlog.request.Login;
 import com.develop.devlog.request.Signup;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.scrypt.SCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,13 +17,17 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder encoder;
 
     @Transactional
     public Long signin(Login login) {
-        User user = userRepository.findByEmailAndPassword(login.getEmail(), login.getPassword())
+        User user = userRepository.findByEmail(login.getEmail())
                 .orElseThrow(InvalidSigninInformation::new);
 
-        Session session = user.addSession();
+        boolean isLogin = encoder.matches(login.getPassword(), user.getPassword());
+        if (!isLogin) {
+            throw new InvalidSigninInformation();
+        }
 
         return user.getId();
     }
@@ -36,8 +39,7 @@ public class AuthService {
             throw new AlreadyExistsEmailException();
         }
 
-        SCryptPasswordEncoder encoder = new SCryptPasswordEncoder(16, 8, 1, 32, 64);
-        String encryptedPassword = encoder.encode(signup.getPassword());
+        String encryptedPassword = encoder.encrypt(signup.getPassword());
 
         User user = User.builder()
                 .name(signup.getName())
