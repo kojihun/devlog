@@ -1,11 +1,13 @@
 package com.develop.devlog.controller;
 
+import com.develop.devlog.config.AppConfig;
 import com.develop.devlog.domain.Session;
 import com.develop.devlog.domain.User;
 import com.develop.devlog.exception.InvalidRequest;
 import com.develop.devlog.exception.InvalidSigninInformation;
 import com.develop.devlog.repository.UserRepository;
 import com.develop.devlog.request.Login;
+import com.develop.devlog.request.Signup;
 import com.develop.devlog.response.SessionResponse;
 import com.develop.devlog.service.AuthService;
 import io.jsonwebtoken.Jwts;
@@ -24,6 +26,7 @@ import javax.crypto.SecretKey;
 import java.security.Key;
 import java.time.Duration;
 import java.util.Base64;
+import java.util.Date;
 import java.util.Optional;
 
 @Slf4j
@@ -32,7 +35,7 @@ import java.util.Optional;
 public class AuthController {
 
     private final AuthService authService;
-    private static final String KEY = "drCzhdmlM81fPyQDwGEZ476mByd81azLp7jd189LQ2A=";
+    private final AppConfig appConfig;
 
     @PostMapping("/auth/login/cookie")
     public ResponseEntity<Object> loginCookie(@RequestBody Login login) {
@@ -58,14 +61,20 @@ public class AuthController {
     public SessionResponse login(@RequestBody Login login) {
         Long userId = authService.signin(login);
 
-        SecretKey key = Keys.hmacShaKeyFor(Base64.getDecoder().decode(KEY));
+        SecretKey key = Keys.hmacShaKeyFor(Base64.getDecoder().decode(appConfig.getJwtKey()));
 
         // todo 암호화관련 변환 필요
         String jws = Jwts.builder()
                 .setSubject(String.valueOf(userId))
                 .signWith(key)
+                .setIssuedAt(new Date())
                 .compact();
 
         return new SessionResponse(jws);
+    }
+
+    @PostMapping("/auth/signup")
+    public void signup(@RequestBody Signup signup) {
+        authService.signup(signup);
     }
 }

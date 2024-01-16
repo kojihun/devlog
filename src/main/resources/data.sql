@@ -1,1 +1,0 @@
-INSERT INTO USER (name, email, password, created_at) VALUES ('DEVLOG', 'devlog@dev.com', '1234', '2024-01-14');

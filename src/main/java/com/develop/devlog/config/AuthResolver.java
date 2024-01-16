@@ -26,8 +26,7 @@ import java.util.Optional;
 public class AuthResolver implements HandlerMethodArgumentResolver {
 
     private final SessionRepository sessionRepository;
-    private static final String KEY = "drCzhdmlM81fPyQDwGEZ476mByd81azLp7jd189LQ2A=";
-
+    private final AppConfig appConfig;
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
         return parameter.getParameterType().equals(UserSession.class);
@@ -59,6 +58,8 @@ public class AuthResolver implements HandlerMethodArgumentResolver {
 
     @Override
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
+        log.info(">>> {}", appConfig.toString());
+
         String jws = webRequest.getHeader("Authorization");
         if (jws == null || jws.equals("")) {
             throw new Unauthorized();
@@ -67,7 +68,7 @@ public class AuthResolver implements HandlerMethodArgumentResolver {
         // todo 암호화 관련하여 개선 필요
         try {
             Jws<Claims> claims = Jwts.parser()
-                    .setSigningKey(KEY)
+                    .setSigningKey(appConfig.getJwtKey())
                     .build()
                     .parseClaimsJws(jws);
 
