@@ -6,3 +6,8 @@ Content-Type: application/json
   "email": "devlog@dev.com",
   "password": "1234"
 }
+
+### 인증 페이지 요청
+GET http://localhost:8080/foo
+Content-Type: application/json
+Cookie: SESSION=38bb50bd-5aa8-4a61-9c60-899f8b026fbd
