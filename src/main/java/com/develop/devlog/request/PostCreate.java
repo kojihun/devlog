@@ -5,15 +5,12 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 @Getter
-@Setter
-@ToString
 public class PostCreate {
+    @NotBlank(message = "제목을 입력해주세요.")
+    private final String title;
 
-    @NotBlank(message = "title을 입력해주세요.")
-    private String title;
-
-    @NotBlank(message = "content를 입력해주세요.")
-    private String content;
+    @NotBlank(message = "내용을 입력해주세요.")
+    private final String content;
 
     @Builder
     public PostCreate(String title, String content) {
@@ -22,8 +19,8 @@ public class PostCreate {
     }
 
     public void validate() {
-        if (title.contains("바보")) {
-            throw new InvalidRequest("title", "제목에 바보를 포함할 수 없습니다.");
+        if (title.contains("비속어")) {
+            throw new InvalidRequest("title", "제목에 비속어를 포함할 수 없습니다.");
         }
     }
 }

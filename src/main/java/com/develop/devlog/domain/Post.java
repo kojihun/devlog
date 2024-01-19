@@ -34,9 +34,4 @@ public class Post {
         this.title = postEditor.getTitle();
         this.content = postEditor.getContent();
     }
-
-    public void setPostEditInformation(PostEdit postEdit) {
-        this.title = postEdit.getTitle();
-        this.content = postEdit.getContent();
-    }
 }

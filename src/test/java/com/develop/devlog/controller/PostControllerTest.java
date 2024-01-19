@@ -27,13 +27,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @SpringBootTest
 class PostControllerTest {
-
-    @Autowired
-    ObjectMapper objectMapper;
-
     @Autowired
     private MockMvc mockMvc;
-
+    @Autowired
+    private ObjectMapper objectMapper;
     @Autowired
     private PostRepository postRepository;
 
@@ -43,33 +40,45 @@ class PostControllerTest {
     }
 
     @Test
-    @DisplayName("글 작성 요청시 Hello world를 출력한다.")
-    void test() throws Exception {
-        PostCreate request = PostCreate.builder()
+    @DisplayName("게시물을 등록합니다.")
+    void createPostTest() throws Exception {
+        // Given
+        PostCreate postCreate = PostCreate.builder()
                 .title("제목입니다.")
                 .content("내용입니다.")
                 .build();
-        String json = objectMapper.writeValueAsString(request);
 
+        String postCreateJson = objectMapper.writeValueAsString(postCreate);
+
+        // Then
         mockMvc.perform(post("/posts")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(json))
+                        .header("authorization", "devlog")
+                        .content(postCreateJson))
                 .andExpect(status().isOk())
-                .andExpect(content().string(""))
                 .andDo(MockMvcResultHandlers.print());
+
+        Assertions.assertEquals(1L, postRepository.count());
+        Post post = postRepository.findAll().get(0);
+        Assertions.assertEquals("제목입니다.", post.getTitle());
+        Assertions.assertEquals("내용입니다.", post.getContent());
     }
 
     @Test
-    @DisplayName("글 작성 요청시 title값은 필수다.")
-    void test2() throws Exception {
-        PostCreate request = PostCreate.builder()
+    @DisplayName("게시물 등록시 제목을 입력하지 않을 경우 400에러가 발생합니다.")
+    void createPostWhenNullTitleTest() throws Exception {
+        // Given
+        PostCreate postCreate = PostCreate.builder()
                 .content("내용입니다.")
                 .build();
-        String json = objectMapper.writeValueAsString(request);
 
+        String postCreateJson = objectMapper.writeValueAsString(postCreate);
+
+        // Then
         mockMvc.perform(post("/posts")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(json))
+                        .header("authorization", "devlog")
+                        .content(postCreateJson))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value("400"))
                 .andExpect(jsonPath("$.message").value("잘못된 요청"))
@@ -77,138 +86,143 @@ class PostControllerTest {
     }
 
     @Test
-    @DisplayName("글 작성 요청시 DB에 값이 저장된다.")
-    void test3() throws Exception {
-        PostCreate request = PostCreate.builder()
+    @DisplayName("게시물 id를 사용하여 1건을 조회합니다.")
+    void getPostByIdTest() throws Exception {
+        // Given
+        Post post = Post.builder()
                 .title("제목입니다.")
                 .content("내용입니다.")
                 .build();
-        String json = objectMapper.writeValueAsString(request);
 
-        mockMvc.perform(post("/posts")
-                        .header("authorization", "devlog")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json))
-                .andExpect(status().isOk())
-                .andDo(MockMvcResultHandlers.print());
-
-        Assertions.assertEquals(1L, postRepository.count());
-
-        Post post = postRepository.findAll().get(0);
-        assertEquals("제목입니다.", post.getTitle());
-        assertEquals("내용입니다.", post.getContent());
-    }
-
-    @Test
-    @DisplayName("글 1개 조회")
-    void test4() throws Exception {
-        Post post = Post.builder()
-                .title("12345678901011")
-                .content("내용입니다.")
-                .build();
         postRepository.save(post);
 
+        // Then
         mockMvc.perform(get("/posts/{postId}", post.getId())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(post.getId()))
-                .andExpect(jsonPath("$.title").value("1234567890"))
-                .andExpect(jsonPath("$.content").value("내용입니다."))
+                .andExpect(jsonPath("$.title").value(post.getTitle()))
+                .andExpect(jsonPath("$.content").value(post.getContent()))
                 .andDo(MockMvcResultHandlers.print());
     }
 
     @Test
-    @DisplayName("글 여러개 조회")
-    void test5() throws Exception {
-        List<Post> requestPosts = IntStream.range(0, 30)
-                .mapToObj(i -> Post.builder()
-                        .title("제목 - " + i)
-                        .content("내용 - " + i)
+    @DisplayName("모든 게시물을 조회합니다. (최신글 순서대로 정렬)")
+    void getAllPostsTest() throws Exception {
+        // Given
+        List<Post> posts = IntStream.range(0, 30)
+                .mapToObj(index -> Post.builder()
+                        .title("제목: " + index)
+                        .content("내용: " + index)
                         .build()).toList();
-        postRepository.saveAll(requestPosts);
 
+        postRepository.saveAll(posts);
+
+        // Then
         mockMvc.perform(get("/posts?page=1&size=10")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()", Matchers.is(10)))
-                .andExpect(jsonPath("$[0].title").value("제목 - 29"))
-                .andExpect(jsonPath("$[0].content").value("내용 - 29"))
+                .andExpect(jsonPath("$[0].title").value("제목: 29"))
+                .andExpect(jsonPath("$[0].content").value("내용: 29"))
                 .andDo(MockMvcResultHandlers.print());
     }
 
     @Test
-    @DisplayName("글 내용 수정")
-    void test6() throws Exception{
+    @DisplayName("게시물 정보를 수정합니다.")
+    void editPostTest() throws Exception{
+        // Given
         Post post = Post.builder()
-                .title("제목")
-                .content("내용")
+                .title("변경 전 제목입니다..")
+                .content("변경 전 내용입니다.")
                 .build();
 
         postRepository.save(post);
 
+        // When
         PostEdit postEdit = PostEdit.builder()
-                .title("제목")
-                .content("수정된 내용")
+                .title("변경 후 제목입니다.")
+                .content("변경 후 내용입니다.")
                 .build();
 
         mockMvc.perform(patch("/posts/{postId}", post.getId())
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("authorization", "devlog")
                         .content(objectMapper.writeValueAsString(postEdit)))
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
+
+        // Then
+        Post updatedPost = postRepository.findById(post.getId())
+                .orElseThrow(() -> new RuntimeException("게시물이 존재하지 않습니다. id = " + post.getId()));
+
+        Assertions.assertEquals("변경 후 제목입니다.", updatedPost.getTitle());
+        Assertions.assertEquals("변경 후 내용입니다.", updatedPost.getContent());
     }
 
     @Test
-    @DisplayName("게시글 삭제")
-    void test7() throws Exception {
+    @DisplayName("게시물 단건을 삭제합니다.")
+    void deletePostTest() throws Exception {
+        // Given
         Post post = Post.builder()
-                .title("제목")
-                .content("내용")
+                .title("삭제가 될 게시물입니다.")
+                .content("삭제가 될 게시물입니다.")
                 .build();
 
         postRepository.save(post);
 
+        // Then
         mockMvc.perform(delete("/posts/{postId}", post.getId())
-                        .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("authorization", "devlog"))
                 .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
     }
 
     @Test
-    @DisplayName("존재하지 않는 게시글 조회")
-    void test9() throws Exception {
+    @DisplayName("게시물 id로 조회시, 존재하지 않는 게시물일 경우 예외가 발생해야 합니다.")
+    void getPostByIdWhenNotExistTest() throws Exception {
+        // Then
         mockMvc.perform(delete("/posts/{postId}", 1L)
-                        .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("authorization", "devlog"))
                 .andExpect(status().isNotFound())
                 .andDo(MockMvcResultHandlers.print());
     }
 
     @Test
-    @DisplayName("존재하지 않는 게시글 수정")
-    void test10() throws Exception {
+    @DisplayName("게시물 수정시, 존재하지 않는 게시물일 경우 예외가 발생해야 합니다.")
+    void editPostByIdWhenNotExistTest() throws Exception {
+        // Given
         PostEdit postEdit = PostEdit.builder()
-                .title("제목")
-                .content("수정된 내용")
+                .title("제목입니다.")
+                .content("내용입니다.")
                 .build();
 
+        // Then
         mockMvc.perform(patch("/posts/{postId}", 1L)
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("authorization", "devlog")
                         .content(objectMapper.writeValueAsString(postEdit)))
                 .andExpect(status().isNotFound())
                 .andDo(MockMvcResultHandlers.print());
     }
 
     @Test
-    @DisplayName("게시글 작성시 제목에 바보는 포함될 수 없다.")
-    void test11() throws Exception {
+    @DisplayName("게시물 등록시 제목에 비속어 포함시 예외가 발생합니다.")
+    void createPostsWhenBadWordsInTitleTest() throws Exception {
+        // Given
         PostCreate request = PostCreate.builder()
-                .title("제목입니다. 바보")
+                .title("비속어 제목입니다.")
                 .content("내용입니다.")
                 .build();
+
         String json = objectMapper.writeValueAsString(request);
 
+        // Then
         mockMvc.perform(post("/posts")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("authorization", "devlog")
                         .content(json))
                 .andExpect(status().isBadRequest())
                 .andDo(MockMvcResultHandlers.print());

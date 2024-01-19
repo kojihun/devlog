@@ -63,6 +63,7 @@ public class PostService {
                 .title(postCreate.getTitle())
                 .content(postCreate.getContent())
                 .build();
+
         postRepository.save(post);
     }
 
@@ -88,14 +89,6 @@ public class PostService {
         post.edit(postEditor);
     }
 
-    public void editPostSaveProcess(Long postId, PostEdit postEdit) {
-        Post post = postRepository.findById(postId)
-                .orElseThrow(PostNotFound::new);
-
-        post.setPostEditInformation(postEdit);
-        postRepository.save(post);
-    }
-
     /**
      * 게시물을 삭제합니다.
      * 만약, 게시물 id로 조회를 했을때 일치하는 정보가 없다면 Not Found Exception을 호출합니다.
@@ -103,7 +96,7 @@ public class PostService {
      * @param postId 삭제할 게시물의 고유한 PK
      * @throws PostNotFound 예외 처리
      */
-    public void delete(Long postId) {
+    public void deletePost(Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(PostNotFound::new);
 

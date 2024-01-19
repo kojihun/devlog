@@ -84,7 +84,7 @@ public class PostController {
     @DeleteMapping("/posts/{postId}")
     public void deletePost(@PathVariable Long postId, @RequestHeader String authorization) {
         if (authorization.equals("devlog")) {
-            postService.delete(postId);
+            postService.deletePost(postId);
         }
     }
 }
