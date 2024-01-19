@@ -7,6 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface PostRepositoryCustom {
-
-    List<Post> getList(PostSearch postSearch);
+    List<Post> getAllPosts(PostSearch postSearch);
 }

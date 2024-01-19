@@ -9,12 +9,11 @@ import lombok.RequiredArgsConstructor;
 import java.util.List;
 
 @RequiredArgsConstructor
-public class PostRepositoryImpl implements PostRepositoryCustom{
-
+public class PostRepositoryCustomImpl implements PostRepositoryCustom{
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public List<Post> getList(PostSearch postSearch) {
+    public List<Post> getAllPosts(PostSearch postSearch) {
         return jpaQueryFactory.selectFrom(QPost.post)
                 .limit(postSearch.getSize())
                 .offset(postSearch.getOffset())

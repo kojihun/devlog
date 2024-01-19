@@ -41,7 +41,7 @@ class PostServiceTest {
                 .content("내용입니다.")
                 .build();
 
-        postService.write(postCreate);
+        postService.createPost(postCreate);
 
         Assertions.assertEquals(1L, postRepository.count());
     }
@@ -55,7 +55,7 @@ class PostServiceTest {
                 .build();
         postRepository.save(requestPost);
 
-        PostResponse postResponse = postService.get(requestPost.getId());
+        PostResponse postResponse = postService.getPostById(requestPost.getId());
 
         Assertions.assertNotNull(postResponse);
     }
@@ -75,7 +75,7 @@ class PostServiceTest {
                 .size(10)
                 .build();
 
-        List<PostResponse> posts = postService.getList(postSearch);
+        List<PostResponse> posts = postService.getAllPosts(postSearch);
 
         Assertions.assertEquals(10L, posts.size());
         Assertions.assertEquals("제목 - 29", posts.get(0).getTitle());
@@ -97,7 +97,7 @@ class PostServiceTest {
                 .content("내용")
                 .build();
 
-        postService.edit(post.getId(), postEdit);
+        postService.editPost(post.getId(), postEdit);
 
         Post changedPost = postRepository.findById(post.getId())
                 .orElseThrow(() -> new RuntimeException("글이 존재하지 않습니다. id = " + post.getId()));
@@ -119,7 +119,7 @@ class PostServiceTest {
                 .content("수정된 내용")
                 .build();
 
-        postService.edit(post.getId(), postEdit);
+        postService.editPost(post.getId(), postEdit);
 
         Post changedPost = postRepository.findById(post.getId())
                 .orElseThrow(() -> new RuntimeException("글이 존재하지 않습니다. id = " + post.getId()));
@@ -151,7 +151,7 @@ class PostServiceTest {
         postRepository.save(requestPost);
 
         Assertions.assertThrows(PostNotFound.class, () -> {
-            postService.get(requestPost.getId() + 1L);
+            postService.getPostById(requestPost.getId() + 1L);
         });
     }
 
@@ -186,7 +186,7 @@ class PostServiceTest {
                 .build();
 
         Assertions.assertThrows(PostNotFound.class, () -> {
-            postService.edit(post.getId() + 1L, postEdit);
+            postService.editPost(post.getId() + 1L, postEdit);
         });
 
     }

@@ -3,11 +3,9 @@ package com.develop.devlog.response;
 import com.develop.devlog.domain.Post;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 @Getter
 public class PostResponse {
-
     private final Long id;
     private final String title;
     private final String content;
