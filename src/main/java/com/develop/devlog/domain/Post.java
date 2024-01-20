@@ -1,6 +1,5 @@
 package com.develop.devlog.domain;
 
-import com.develop.devlog.request.PostEdit;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;

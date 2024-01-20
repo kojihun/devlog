@@ -1,6 +1,5 @@
 package com.develop.devlog.controller;
 
-import com.develop.devlog.config.data.UserSession;
 import com.develop.devlog.request.PostCreate;
 import com.develop.devlog.request.PostEdit;
 import com.develop.devlog.request.PostSearch;
@@ -18,12 +17,6 @@ import java.util.List;
 @RestController
 public class PostController {
     private final PostService postService;
-
-    @GetMapping("/foo")
-    public Long foo(UserSession userSession) {
-        log.info(String.valueOf(userSession.id));
-        return userSession.id;
-    }
 
     /**
      * 검색 조건에 부합하는 게시물 목록을 리턴합니다.

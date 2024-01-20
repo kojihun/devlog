@@ -1,8 +1,6 @@
 package com.develop.devlog.controller;
 
 import com.develop.devlog.exception.DevlogException;
-import com.develop.devlog.exception.InvalidRequest;
-import com.develop.devlog.exception.PostNotFound;
 import com.develop.devlog.response.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -17,10 +15,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @Slf4j
 @ControllerAdvice
 public class ExceptionController {
-
+    @ResponseBody
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    @ResponseBody
     public ErrorResponse invalidRequestHandler(MethodArgumentNotValidException e) {
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .code("400")
