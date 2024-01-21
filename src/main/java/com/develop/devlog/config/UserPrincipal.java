@@ -13,8 +13,7 @@ public class UserPrincipal extends User {
         super(user.getEmail()
                 , user.getPassword()
                 , List.of(
-                        new SimpleGrantedAuthority("ROLE_ADMIN"),
-                        new SimpleGrantedAuthority("WRITE")
+                        new SimpleGrantedAuthority("ROLE_USER")
                 ));
         this.userId = user.getId();
     }

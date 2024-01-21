@@ -1,7 +1,12 @@
 package com.develop.devlog.config;
 
+import com.develop.devlog.config.handler.Http401Handler;
+import com.develop.devlog.config.handler.Http403Handler;
+import com.develop.devlog.config.handler.LoginFailHandler;
 import com.develop.devlog.domain.User;
 import com.develop.devlog.repository.UserRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -24,8 +29,11 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import static org.springframework.boot.autoconfigure.security.servlet.PathRequest.toH2Console;
 
 @EnableWebSecurity(debug = true)
+@RequiredArgsConstructor
 @Configuration
 public class SecurityConfig {
+
+    private final ObjectMapper objectMapper;
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
@@ -47,7 +55,8 @@ public class SecurityConfig {
                         authorizeHttpRequests
                                 .requestMatchers(new AntPathRequestMatcher("/auth/signin")).permitAll()
                                 .requestMatchers(new AntPathRequestMatcher("/auth/signup")).permitAll()
-                                .requestMatchers(new AntPathRequestMatcher("/admin")).access(new WebExpressionAuthorizationManager("hasRole('ADMIN') AND hasAuthority('WRITE')"))
+                                .requestMatchers(new AntPathRequestMatcher("/admin")).access(new WebExpressionAuthorizationManager("hasRole('ADMIN')"))
+                                .requestMatchers(new AntPathRequestMatcher("/user")).access(new WebExpressionAuthorizationManager("hasRole('USER')"))
                                 .anyRequest().authenticated())
                 .formLogin((formLogin) ->
                         formLogin
@@ -56,7 +65,12 @@ public class SecurityConfig {
                                 .loginPage("/auth/signin")
                                 .loginProcessingUrl("/auth/signin")
                                 .defaultSuccessUrl("/")
+                                .failureHandler(new LoginFailHandler(objectMapper))
                 )
+                .exceptionHandling(e -> {
+                    e.accessDeniedHandler(new Http403Handler(objectMapper));
+                    e.authenticationEntryPoint(new Http401Handler(objectMapper));
+                })
                 .rememberMe(rm -> rm
                         .rememberMeParameter("remember")
                         .alwaysRemember(false)
