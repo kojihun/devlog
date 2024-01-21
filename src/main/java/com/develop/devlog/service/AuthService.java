@@ -1,12 +1,12 @@
 package com.develop.devlog.service;
 
-import com.develop.devlog.crypto.PasswordEncoder;
 import com.develop.devlog.domain.User;
 import com.develop.devlog.exception.AlreadyExistsEmailException;
 import com.develop.devlog.exception.InvalidSigninInformation;
 import com.develop.devlog.repository.UserRepository;
 import com.develop.devlog.request.Signup;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class AuthService {
     private final UserRepository userRepository;
-    private final PasswordEncoder encoder;
+    private final PasswordEncoder passwordEncoder;
 
     public void signup(Signup signup) {
         User checkUser = userRepository.findByEmail(signup.getEmail())
@@ -23,7 +23,7 @@ public class AuthService {
             throw new AlreadyExistsEmailException();
         }
 
-        String encryptedPassword = encoder.encrypt(signup.getPassword());
+        String encryptedPassword= passwordEncoder.encode(signup.getPassword());
 
         User user = User.builder()
                 .name(signup.getName())
