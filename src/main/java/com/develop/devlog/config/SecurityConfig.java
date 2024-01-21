@@ -18,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.crypto.scrypt.SCryptPasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.expression.WebExpressionAuthorizationManager;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import static org.springframework.boot.autoconfigure.security.servlet.PathRequest.toH2Console;
@@ -44,8 +45,9 @@ public class SecurityConfig {
         return httpSecurity
                 .authorizeHttpRequests((authorizeHttpRequests) ->
                         authorizeHttpRequests
-                                .requestMatchers(new AntPathRequestMatcher("/auth/signin", "POST")).permitAll()
-                                .requestMatchers(new AntPathRequestMatcher("/auth/signup", "POST")).permitAll()
+                                .requestMatchers(new AntPathRequestMatcher("/auth/signin")).permitAll()
+                                .requestMatchers(new AntPathRequestMatcher("/auth/signup")).permitAll()
+                                .requestMatchers(new AntPathRequestMatcher("/admin")).access(new WebExpressionAuthorizationManager("hasRole('ADMIN') AND hasAuthority('WRITE')"))
                                 .anyRequest().authenticated())
                 .formLogin((formLogin) ->
                         formLogin
