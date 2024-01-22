@@ -10,9 +10,12 @@ Content-Type: application/json
 
 ### 로그인
 POST http://localhost:8080/auth/signin
-Content-Type: application/x-www-form-urlencoded
+Content-Type: application/json
 
-username=devlog@dev.com&password=1234&remember=1
+{
+  "email": "devlog@dev.com",
+  "password": "1234"
+}
 
 ### 사용자페이지 조회
 GET http://localhost:8080/user
